@@ -13,7 +13,12 @@ if [ ! -f "$CLEANRL_DIR/cleanrl/ppo_continuous_action.py" ] || ! python -c "impo
 fi
 # nproc shows the host's cores; the container's real share is its cgroup quota.
 cores() { { read -r q p < /sys/fs/cgroup/cpu.max; } 2>/dev/null && [ "$q" != max ] && echo $(( q / p )) || nproc; }
-JOBS="${JOBS:-$(cores)}"
+# Each run peaks at ~0.7 GB RAM, so allow one run per GB (cgroup limit, else available memory).
+mem_gb() { local m; m=$(cat /sys/fs/cgroup/memory.max 2>/dev/null || echo max)
+  if [ "$m" = max ]; then awk '/MemAvailable/{print int($2/1048576)}' /proc/meminfo; else echo $(( m / 1073741824 )); fi; }
+C=$(cores); M=$(mem_gb); AUTO=$(( C < M ? C : M )); [ "$AUTO" -ge 1 ] || AUTO=1
+JOBS="${JOBS:-$AUTO}"
+echo "pod resources: $C cores, $M GB RAM"
 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1   # one thread per run; parallelism comes from running many runs
 echo "running $(echo $ENVS | wc -w) env(s) x $(echo $SEEDS | wc -w) seed(s), $JOBS at a time, $TOTAL_STEPS steps each"
 LOCAL="${LOCAL_ROOT:-/root}/runs/cleanrl"   # write locally: the volume is object storage
