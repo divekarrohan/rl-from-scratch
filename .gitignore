@@ -1,0 +1,7 @@
+runs/
+logs/
+wandb/
+videos/
+__pycache__/
+*.pt
+.venv/

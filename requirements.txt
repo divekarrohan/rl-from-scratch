@@ -1,0 +1,10 @@
+# Same environment versions as CleanRL's MuJoCo setup, so the comparison is fair.
+# Needs Python 3.11 (mujoco 2.3.3 has no wheels for 3.12+); setup_pod.sh handles that with uv.
+gymnasium[mujoco]==0.29.1
+mujoco==2.3.3
+numpy==2.4.6
+torch==2.15.0
+tyro==1.0.17
+tensorboard==2.21.0
+matplotlib
+pandas
