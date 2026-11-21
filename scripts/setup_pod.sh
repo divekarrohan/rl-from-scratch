@@ -6,6 +6,9 @@ WS="${WORKSPACE:-/workspace}"
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 VENV_DIR="${VENV_DIR:-$WS/venvs/rl}"          # override to put the environment on local disk
 CLEANRL_DIR="${CLEANRL_DIR:-$WS/cleanrl}"
+# The Global volume is object storage (no chmod), so the package cache must be on local disk.
+export UV_CACHE_DIR="${UV_CACHE_DIR:-/root/.cache/uv}"
+export PIP_CACHE_DIR="${PIP_CACHE_DIR:-/root/.cache/pip}"
 
 if [ -z "${RUNPOD_POD_ID:-}" ] && [ -z "${ALLOW_LOCAL:-}" ]; then
   echo "This looks like your own computer, not a RunPod pod (RUNPOD_POD_ID is not set)."
