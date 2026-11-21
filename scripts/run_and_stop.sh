@@ -12,6 +12,7 @@ STATUS=${PIPESTATUS[0]}
 echo "exit status $STATUS" | tee -a "$LOG"
 cp "$LOG" "$WS/logs/" && echo "log copied to $WS/logs/$(basename "$LOG")"
 if [ -z "${NO_STOP:-}" ] && [ -n "${RUNPOD_POD_ID:-}" ]; then
-  runpodctl pod stop "$RUNPOD_POD_ID" || runpodctl stop pod "$RUNPOD_POD_ID"
+  # newer runpodctl uses "pod stop", older "stop pod"; try both
+  runpodctl pod stop "$RUNPOD_POD_ID" 2>/dev/null || runpodctl stop pod "$RUNPOD_POD_ID"
 fi
 exit "$STATUS"
