@@ -32,9 +32,7 @@ Each session, in the pod's web terminal:
 
 ```sh
 cd /root && git clone https://github.com/divekarrohan/rl-from-scratch && cd rl-from-scratch
-VENV_DIR=/root/venv CLEANRL_DIR=/root/cleanrl bash scripts/setup_pod.sh   # a few minutes
-source /root/venv/bin/activate
-export CLEANRL_DIR=/root/cleanrl
+bash scripts/setup_pod.sh   # a few minutes
 TOTAL_STEPS=20000 SEEDS=1 ENVS=Hopper-v4 NO_STOP=1 \
   bash scripts/run_and_stop.sh bash scripts/baseline_cleanrl.sh   # 1-minute smoke test
 bash scripts/run_and_stop.sh bash scripts/baseline_cleanrl.sh     # full baseline, then the pod stops itself

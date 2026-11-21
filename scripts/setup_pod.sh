@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# One-time setup on a RunPod pod. Everything lives on the attached volume (default /workspace),
-# so later sessions only need: source /workspace/venvs/rl/bin/activate
+# Setup on a RunPod pod, rerun each time the pod starts. The volume (/workspace) is object storage
+# (no chmod, no locking), so the environment, CleanRL and caches go on local disk (/root), which is
+# wiped when the pod stops. Only results and logs are kept on /workspace.
 set -euo pipefail
 WS="${WORKSPACE:-/workspace}"
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-VENV_DIR="${VENV_DIR:-$WS/venvs/rl}"          # override to put the environment on local disk
-CLEANRL_DIR="${CLEANRL_DIR:-$WS/cleanrl}"
-# The Global volume is object storage (no chmod), so the package cache must be on local disk.
-export UV_CACHE_DIR="${UV_CACHE_DIR:-/root/.cache/uv}"
-export PIP_CACHE_DIR="${PIP_CACHE_DIR:-/root/.cache/pip}"
+VENV_DIR="${VENV_DIR:-/root/venv}"
+CLEANRL_DIR="${CLEANRL_DIR:-/root/cleanrl}"
+# Set unconditionally: RunPod templates point UV_CACHE_DIR at /workspace, where uv can't set permissions.
+export UV_CACHE_DIR=/root/.cache/uv PIP_CACHE_DIR=/root/.cache/pip
 
 if [ -z "${RUNPOD_POD_ID:-}" ] && [ -z "${ALLOW_LOCAL:-}" ]; then
   echo "This looks like your own computer, not a RunPod pod (RUNPOD_POD_ID is not set)."
