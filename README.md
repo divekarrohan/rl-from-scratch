@@ -24,11 +24,20 @@ A many-core CPU pod is the cheapest place to run it.
 
 ## Run on a RunPod pod
 
+The pod's volume (`/workspace`) is a RunPod Global volume: object storage with no file locking or atomic
+rename. So code and the Python environment live on the pod's local disk (`/root`, wiped when the pod
+stops), and only finished results and logs are copied to `/workspace`.
+
+Each session, in the pod's web terminal:
+
 ```sh
-git clone https://github.com/divekarrohan/rl-from-scratch && cd rl-from-scratch
-bash scripts/setup_pod.sh                                      # once per network volume
-source /workspace/venvs/rl/bin/activate
+cd /root && git clone https://github.com/divekarrohan/rl-from-scratch && cd rl-from-scratch
+VENV_DIR=/root/venv CLEANRL_DIR=/root/cleanrl bash scripts/setup_pod.sh   # a few minutes
+source /root/venv/bin/activate
+export CLEANRL_DIR=/root/cleanrl
 TOTAL_STEPS=20000 SEEDS=1 ENVS=Hopper-v4 NO_STOP=1 \
-  bash scripts/run_and_stop.sh bash scripts/baseline_cleanrl.sh  # 1-minute smoke test
-bash scripts/run_and_stop.sh bash scripts/baseline_cleanrl.sh    # full baseline, then the pod stops itself
+  bash scripts/run_and_stop.sh bash scripts/baseline_cleanrl.sh   # 1-minute smoke test
+bash scripts/run_and_stop.sh bash scripts/baseline_cleanrl.sh     # full baseline, then the pod stops itself
 ```
+
+Results land in `/workspace/runs/cleanrl`, logs in `/workspace/logs`.

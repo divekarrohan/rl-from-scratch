@@ -3,12 +3,14 @@
 # Usage: scripts/run_and_stop.sh <command> [args...]     (set NO_STOP=1 to keep the pod running)
 set -uo pipefail
 WS="${WORKSPACE:-/workspace}"
-mkdir -p "$WS/logs"
-LOG="$WS/logs/$(date +%Y%m%d-%H%M%S).log"
+LOCAL_LOGS="${LOCAL_ROOT:-/root}/logs"    # log locally, copy to the volume at the end
+mkdir -p "$LOCAL_LOGS" "$WS/logs"
+LOG="$LOCAL_LOGS/$(date +%Y%m%d-%H%M%S).log"
 echo "logging to $LOG"
 "$@" 2>&1 | tee "$LOG"
 STATUS=${PIPESTATUS[0]}
 echo "exit status $STATUS" | tee -a "$LOG"
+cp "$LOG" "$WS/logs/" && echo "log copied to $WS/logs/$(basename "$LOG")"
 if [ -z "${NO_STOP:-}" ] && [ -n "${RUNPOD_POD_ID:-}" ]; then
   runpodctl pod stop "$RUNPOD_POD_ID" || runpodctl stop pod "$RUNPOD_POD_ID"
 fi
